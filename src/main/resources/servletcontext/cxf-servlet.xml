@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://cxf.apache.org/jaxrs
+						http://cxf.apache.org/schemas/jaxrs.xsd
+						http://cxf.apache.org/jaxws
+						http://cxf.apache.org/schemas/jaxws.xsd">
+
+
+	<import resource="classpath:springcontext/spring-elasticsearch.xml" />
+	<import resource="classpath:springcontext/spring-cache.xml" />
+
+	<bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"></bean>
+	<!-- <jaxws:endpoint id="bookShelfService" implementor="com.aranin.weblog4j.services.BookShelfServiceImpl" 
+		address="/bookshelfservice" /> -->
+
+	<jaxrs:server id="restServices" address="/rs">
+		<jaxrs:serviceBeans>
+			<ref bean="elasticsearchService" />
+			<ref bean="cacheService" />
+		</jaxrs:serviceBeans>
+		<jaxrs:providers>
+			<ref bean="jsonProvider" />
+		</jaxrs:providers>
+		<jaxrs:features>
+			<ref bean="swagger2Feature" />
+		</jaxrs:features>
+	</jaxrs:server>
+
+	<!-- CXF Swagger2Feature -->
+	<bean id="swagger2Feature" class="org.apache.cxf.jaxrs.swagger.Swagger2Feature">
+		<!-- customize some of the properties -->
+		<property name="basePath" value="/a2z/rs" />
+		<property name="contact" value="anantha.pradeepreddy@outlook.com" />
+		<property name="description" value="Admin Services for the A2Z Pvt Ltd.," />
+		<property name="license" value="a2z 1.0 license" />
+		<property name="scan" value="true" />
+		<property name="scanAllResources" value="false" />
+		<property name="title" value="a2z Restful Services"></property>
+		<property name="version" value="1.0.0"></property>
+	</bean>
+
+</beans>
