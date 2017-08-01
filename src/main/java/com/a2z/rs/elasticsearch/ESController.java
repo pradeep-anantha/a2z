@@ -7,6 +7,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import org.elasticsearch.client.Client;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -15,14 +17,23 @@ import io.swagger.annotations.ApiOperation;
 @Api(value="ElasticSearch", description="Elasticsearch Admin Services")
 public class ESController {
 	
-	private ESClient esClient;
-	
-	public ESClient getEsClient() {
-		return esClient;
+	private ElasticServiceManager esManager;
+	private Client client;
+			
+	public ElasticServiceManager getEsManager() {
+		return esManager;
 	}
 
-	public void setEsClient(ESClient esClient) {
-		this.esClient = esClient;
+	public void setEsManager(ElasticServiceManager esManager) {
+		this.esManager = esManager;
+	}
+
+	public Client getClient() {
+		return client;
+	}
+
+	public void setClient(Client client) {
+		this.client = client;
 	}
 
 	@GET
@@ -32,9 +43,16 @@ public class ESController {
 	public Response resetClient() {
 		String message = "Client reset successful";
 		int statusCode = 200;
-
-		ESServiceResponse response = new ESServiceResponse(statusCode, message);
-
+		ESServiceResponse response = null;
+		try {
+			esManager.init();
+			this.client = esManager.getClient();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			statusCode =500;
+		}
+		response = new ESServiceResponse(statusCode, message);
 		return Response.status(statusCode).entity(response).build();
 	}
 
